@@ -92,23 +92,28 @@ class WayTrie(TrieADT):
     return count
 
   def longest_key_of(self, query: str):
-    def longest_key_of(current: Node, query: str, index: int) -> int:
-      # if the current node is empty, there is no more keys to be checked
-      # or if the index is equal to the length of the query, its finished :)
-      if current is None or index == len(query):
-        return index
+    def longest_key_of(current: Node, query: str, index: int, length: int) -> int:
+      # if there is no node, return the current length
+      if current is None:
+        return length
 
-      # Get the character code of the query[index]
-      # Example: ord('a') = 97
+      # if the current node has a value, update the length
+      if current.value is not None:
+          length = index
+
+      # if we reached the end of the query, return the length
+      if index == len(query):
+        return length
+
+      # just continue the search ;)
       character_code: int = ord(query[index])
       next_node = current.next[character_code]
-      return longest_key_of(next_node, query, index + 1)
+      return longest_key_of(next_node, query, index + 1, length)
 
-    longest_key_index = longest_key_of(self._root, query, 0)
-    if longest_key_index == 0:
-      return None
-
-    return query[:longest_key_index]
+    max_length = longest_key_of(self._root, query, 0, 0)
+    
+    # we return the substring of the query with the max_length
+    return query[:max_length] if max_length > 0 else None
 
   def keys_by_pattern(self):
     # TODO
@@ -131,20 +136,11 @@ if __name__ == '__main__':
   trie.insert('salario', 'salary')
   trie.insert('sapo', 'frog')
 
-  # searching for some words
-  print(trie.search('abril'))
-  print(trie.search('aluno'))
-  print(trie.search('casa'))
-  print(trie.search('foo'))
-
-  # deleting some words
-  trie.delete('abril')
-  trie.delete('casa')
-  print(trie.search('abril'))
-  print(trie.search('casa'))
-
-  # getting all keys with prefix 'ca'
-  print(trie.keys_with_prefix('ca'))
-
-
+  print(trie.longest_key_of('abril'))
+  print(trie.longest_key_of('casa'))
+  print(trie.longest_key_of('sapo'))
+  print(trie.longest_key_of('abrilhantado'))
+  print(trie.longest_key_of('casamento'))
+  print(trie.longest_key_of('sapataria'))
+  print(trie.longest_key_of('canil'))
 
