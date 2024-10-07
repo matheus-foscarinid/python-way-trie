@@ -75,13 +75,40 @@ class WayTrie(TrieADT):
     keys_with_prefix(node, prefix, results)
     return results
 
-  def count_keys_with_prefix(self):
-    # TODO
-    pass
+  def count_keys_with_prefix(self, prefix: str):
+    count = 0
 
-  def longest_key_of(self):
-    # TODO
-    pass
+    def count_keys_with_prefix(current: Node):
+      nonlocal count
+      if current is None:
+        return
+      if current.value is not None:
+        count += 1
+      for i in range(WayTrie.R):
+        count_keys_with_prefix(current.next[i])
+
+    node: Node = self._search(self._root, prefix, 0)
+    count_keys_with_prefix(node)
+    return count
+
+  def longest_key_of(self, query: str):
+    def longest_key_of(current: Node, query: str, index: int) -> int:
+      # if the current node is empty, there is no more keys to be checked
+      # or if the index is equal to the length of the query, its finished :)
+      if current is None or index == len(query):
+        return index
+
+      # Get the character code of the query[index]
+      # Example: ord('a') = 97
+      character_code: int = ord(query[index])
+      next_node = current.next[character_code]
+      return longest_key_of(next_node, query, index + 1)
+
+    longest_key_index = longest_key_of(self._root, query, 0)
+    if longest_key_index == 0:
+      return None
+
+    return query[:longest_key_index]
 
   def keys_by_pattern(self):
     # TODO
