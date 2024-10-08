@@ -1,3 +1,6 @@
+# Grupo 3
+# Nomes: Matheus Foscarini Dias, Enzo Boadas e Mirágini Victória Silveira Malgarizi
+
 from TrieADT import TrieADT
 from typing import List
 
@@ -115,32 +118,35 @@ class WayTrie(TrieADT):
     # we return the substring of the query with the max_length
     return query[:max_length] if max_length > 0 else None
 
-  def keys_by_pattern(self):
-    # TODO
-    pass
+  def keys_by_pattern(self, pattern: str) -> List[str]:
+    def keys_by_pattern(current: Node, prefix: str, index: int, pattern: str, results: List[str]) -> None:
+      # if there is no node, just finish the search
+      if current is None:
+        return
+        
+      # if we reached the end of the pattern, we need to check if the current node has a value
+      if index == len(pattern):
+        # if it has a value, we append the prefix to the results :D
+        if current.value is not None:
+          results.append(prefix)
+        # and then we finish the search
+        return
 
-if __name__ == '__main__':
-  trie = WayTrie()
-  
-  # inserting some words based on slides from WayTrie class
-  trie.insert('abelha', 'bee')
-  trie.insert('abril', 'april')
-  trie.insert('acre', 'acre')
-  trie.insert('aluno', 'student')
+      char = pattern[index]
+      # if using "." we need to iterate over all the possible characters in the trie
+      if char == '.':
+        for i in range(WayTrie.R):
+          if current.next[i] is not None:
+            curr_word = prefix + chr(i)
+            keys_by_pattern(current.next[i], curr_word, index + 1, pattern, results)
+      # if it is a normal character, we just need to go to the next node
+      else:
+        c = ord(char)
+        if current.next[c] is not None:
+          curr_word = prefix + char
+          keys_by_pattern(current.next[c], curr_word, index + 1, pattern, results)
 
-  trie.insert('cabo', 'cable')
-  trie.insert('capa', 'cover')
-  trie.insert('capeta', 'devil')
-  trie.insert('casa', 'house')
+    results: List[str] = []
+    keys_by_pattern(self._root, "", 0, pattern, results)
 
-  trie.insert('salario', 'salary')
-  trie.insert('sapo', 'frog')
-
-  print(trie.longest_key_of('abril'))
-  print(trie.longest_key_of('casa'))
-  print(trie.longest_key_of('sapo'))
-  print(trie.longest_key_of('abrilhantado'))
-  print(trie.longest_key_of('casamento'))
-  print(trie.longest_key_of('sapataria'))
-  print(trie.longest_key_of('canil'))
-
+    return results if results else None
